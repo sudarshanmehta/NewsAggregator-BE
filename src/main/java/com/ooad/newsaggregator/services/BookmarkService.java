@@ -1,12 +1,12 @@
 package com.ooad.newsaggregator.services;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Firestore;
+import com.ooad.newsaggregator.models.Article;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -15,16 +15,11 @@ public class BookmarkService {
     @Autowired
     private Firestore firestore;
 
-    public boolean bookmarkArticle(String userId, String articleRef) {
+    public boolean bookmarkArticle(String userId, Article articleRef) {
         try {
             // Create a map to store the article reference
-            Map<String, Object> bookmarkData = new HashMap<>();
-            bookmarkData.put("articleRef", articleRef); // Wrap the article reference in a key-value pair
-
-            // Add the bookmark to the user's 'bookmarks' sub-collection
-            firestore.collection("users").document(userId)
-                    .collection("bookmarks").add(bookmarkData).get();
-
+             firestore.collection("users").document(userId)
+                    .collection("bookmarks").document(articleRef.getArticleId()).set(articleRef);
             return true;
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging
@@ -32,20 +27,19 @@ public class BookmarkService {
         }
     }
 
-    public boolean removeBookmarkArticle(String userId, String articleRef) {
+    public boolean removeBookmarkArticle(String userId, Article articleRef) {
         try {
             // Get the 'bookmarks' collection for the user
             CollectionReference bookmarksCollection = firestore.collection("users").document(userId).collection("bookmarks");
 
-            // Query the collection for the document with the matching articleRef
-            Query query = bookmarksCollection.whereEqualTo("articleRef", articleRef);
-            ApiFuture<QuerySnapshot> querySnapshot = query.get();
+            // Use the articleId as the document ID in the collection
+            String articleId = articleRef.getArticleId(); // Assuming Article has a `getArticleId` method
 
-            // Check if any documents match and delete them
-            for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
-                DocumentReference documentReference = document.getReference();
-                documentReference.delete();
-            }
+            // Reference the document directly using articleId
+            DocumentReference documentReference = bookmarksCollection.document(articleId);
+
+            // Delete the document
+            documentReference.delete().get(); // Wait for the operation to complete
 
             return true; // Successfully removed the bookmark
         } catch (InterruptedException | ExecutionException e) {

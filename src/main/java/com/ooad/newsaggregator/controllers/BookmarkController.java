@@ -1,6 +1,7 @@
 package com.ooad.newsaggregator.controllers;
 
 import com.google.firebase.auth.FirebaseToken;
+import com.ooad.newsaggregator.models.Article;
 import com.ooad.newsaggregator.services.BookmarkService;
 import com.ooad.newsaggregator.services.FirebaseAuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +21,14 @@ public class BookmarkController {
     private FirebaseAuthService firebaseAuthService;
 
     @PostMapping("/createBookmark")
-    public ResponseEntity<Boolean> createBookmark(@RequestBody String articleRef, HttpServletRequest request) {
+    public ResponseEntity<Boolean> createBookmark(@RequestBody Article articleRef, HttpServletRequest request) {
         FirebaseToken firebaseToken = (FirebaseToken) request.getAttribute("firebaseToken");
         boolean isSaved = bookmarkService.bookmarkArticle(firebaseToken.getUid(), articleRef);
         return ResponseEntity.ok(isSaved);
     }
 
     @PostMapping("/removeBookmark")
-    public ResponseEntity<Boolean> removeBookmark(@RequestBody String articleRef, HttpServletRequest request) {
+    public ResponseEntity<Boolean> removeBookmark(@RequestBody Article articleRef, HttpServletRequest request) {
         FirebaseToken firebaseToken = (FirebaseToken) request.getAttribute("firebaseToken");
         boolean isRemoved = bookmarkService.removeBookmarkArticle(firebaseToken.getUid(), articleRef);
         return ResponseEntity.ok(isRemoved);
