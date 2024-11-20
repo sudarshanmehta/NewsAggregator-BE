@@ -1,6 +1,5 @@
 package com.ooad.newsaggregator.services;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -36,7 +35,15 @@ public class ArticleService {
 
     // Predefined categories
     private static final List<String> ALL_CATEGORIES = Arrays.asList(
-            "Apple", "Google", "Meta", "Uber", "Airbnb", "Mike Tyson", "Tom cruise", "Fiction"
+            "Sports",
+            "Tech",
+            "Health",
+            "Entertainment",
+            "Politics",
+            "Business",
+            "Science",
+            "Travel",
+            "Education"
     );
 
     public void fetchAndStoreArticles() {
