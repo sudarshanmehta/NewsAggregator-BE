@@ -3,6 +3,7 @@ package com.ooad.newsaggregator.services;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
+import com.ooad.newsaggregator.models.AIResponse;
 import com.ooad.newsaggregator.models.Article;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,9 @@ public class ArticleService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private AIService aiService;
+
     private static final String NEWS_API_URL = "https://api.thenewsapi.com/v1/news/all";
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -35,6 +40,7 @@ public class ArticleService {
 
     // Predefined categories
     private static final List<String> ALL_CATEGORIES = Arrays.asList(
+<<<<<<< Updated upstream
             "Sports",
             "Tech",
             "Health",
@@ -44,6 +50,9 @@ public class ArticleService {
             "Science",
             "Travel",
             "Education"
+=======
+            "weather", "politics", "arts", "vehicles", "cricket"
+>>>>>>> Stashed changes
     );
 
     public void fetchAndStoreArticles() {
@@ -70,6 +79,7 @@ public class ArticleService {
                     article.setContent((String) articleData.get("description"));
                     article.setUrl((String) articleData.get("image_url"));
                     article.setPublished_at(Instant.parse((String)articleData.get("published_at")));
+                   // article.setPublished_at(Instant.now());
                     article.setCategory(category);
                     article.setSentiment(""); // Optional, implement sentiment analysis if required
 
@@ -80,8 +90,43 @@ public class ArticleService {
         }
     }
 
+    public List<Article> fetchArticles() {
+        // Fetch articles for each preferred category
+        List<Article> articles = new LinkedList<>();
+        for (String category : ALL_CATEGORIES) {
+
+            String apiUrl = UriComponentsBuilder.fromUriString(NEWS_API_URL)
+                    .queryParam("api_token", apiToken)
+                    .queryParam("language", "en")
+                    .queryParam("limit", 10)
+                    .queryParam("search", category)
+                    .toUriString();
+
+            // Make the API request
+            Map<String, Object> response = restTemplate.getForObject(apiUrl, Map.class);
+
+            if (response != null && response.containsKey("data")) {
+                List<Map<String, Object>> articlesData = (List<Map<String, Object>>) response.get("data");
+
+                // Process and save each article
+                for (Map<String, Object> articleData : articlesData) {
+                    Article article = new Article();
+                    article.setTitle((String) articleData.get("title"));
+                    article.setContent((String) articleData.get("description"));
+                    article.setUrl((String) articleData.get("image_url"));
+                   // article.setPublished_at(Instant.now());
+                    article.setPublished_at(Instant.parse((String)articleData.get("published_at")));
+                    article.setCategory(category);
+                    articles.add(article);
+                }
+            }
+        }
+        return articles;
+    }
+
     public void saveArticleToFirebase(Article article) {
         try {
+            updateSummary(article);
             // Get the reference to the "articles" collection
             CollectionReference reference = firestore.collection("articles");
             // Generate a new document reference to get the document ID
@@ -92,10 +137,16 @@ public class ArticleService {
             reference.add(article).get();  // This is a blocking call to ensure the document is added before continuing
 
             System.out.println("Article saved successfully");
-            notificationService.sendArticleNotification(article.getTitle(),article.getContent());
+           // notificationService.sendArticleNotification(article.getTitle(),article.getContent());
         } catch (Exception e) {
             System.err.println("Error saving article: " + e.getMessage());
         }
+    }
+
+    private void updateSummary(Article article) {
+        AIResponse summary = aiService.summarizeArticle(article.getContent());
+        article.setContent(summary.getSummary());
+        article.setSentiment(summary.getSentiment());
     }
 
 }

@@ -16,15 +16,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Article {
+public class SummarizeArticle {
     @DocumentId
-    private String articleId;
-    private String title;
-    private String content;
-    private String url;
-    private String category;
-    private String sentiment;
-   // private String summary;
-    @JsonDeserialize(using = CustomTimestampDeserializer.class)
-    private Instant published_at;
+    private String full_article;
 }
