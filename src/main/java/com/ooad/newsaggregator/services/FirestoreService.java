@@ -31,10 +31,6 @@ public class FirestoreService {
         return userRecord;
     }
 
-    public String loginUser(String uid) throws FirebaseAuthException {
-        return FirebaseAuth.getInstance().createCustomToken(uid);
-    }
-
     private void initializeUserCollections(String userId) {
         // Add default user profile in the `users` collection
         Map<String, Object> userProfile = new HashMap<>();
@@ -47,8 +43,7 @@ public class FirestoreService {
         firestore.collection(USER_COLLECTION).document(userId).set(userProfile);
 
         // Initialize bookmarks subcollection
-        firestore.collection(USER_COLLECTION).document(userId).collection("bookmarks").document("defaultBookmark")
-                .set(Map.of("createdAt", com.google.cloud.Timestamp.now()));
+        firestore.collection(USER_COLLECTION).document(userId).collection("bookmarks").add(null);
 
         // Initialize recommendations document
         firestore.collection("recommendations").document(userId)
@@ -56,9 +51,5 @@ public class FirestoreService {
                         "recommendedArticles", List.of(),  // Use an empty List instead of array
                         "generatedAt", com.google.cloud.Timestamp.now()));
 
-        // Initialize notifications collection with a welcome notification
-        firestore.collection("notifications").document(userId)
-                .set(Map.of("title", "Welcome!", "content", "Welcome to our platform!",
-                        "category", "welcome", "sentAt", com.google.cloud.Timestamp.now(), "status", "unread"));
     }
 }

@@ -3,13 +3,17 @@ package com.ooad.newsaggregator.authfilter;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.ooad.newsaggregator.services.FirebaseAuthService;
+import com.ooad.newsaggregator.utils.UserContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
@@ -32,11 +36,20 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
         String idToken = header.substring(7);
         try {
             FirebaseToken token = firebaseAuthService.verifyToken(idToken);
-            request.setAttribute("firebaseToken", token);  // Add token to request for further processing
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(token.getUid(), null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserContext.setUserId(token.getUid()); // Store user ID in ThreadLocal
         } catch (FirebaseAuthException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
             return;
         }
-        chain.doFilter(request, response);
+
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            UserContext.clear(); // Ensure ThreadLocal is cleared after request
+        }
     }
+
 }

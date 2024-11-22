@@ -29,12 +29,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public String loginUser(@RequestBody UserLogin userLogin) throws FirebaseAuthException {
-        String token = firestoreService.loginUser(userLogin.getUserId());
-        return token;
-    }
-
     @GetMapping("/info")
     public String getUserInfo(@RequestAttribute("firebaseToken") FirebaseToken firebaseToken) {
         return "User UID: " + firebaseToken.getUid() + ", Email: " + firebaseToken.getEmail();

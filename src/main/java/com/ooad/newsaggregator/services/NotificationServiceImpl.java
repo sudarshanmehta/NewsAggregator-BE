@@ -3,11 +3,12 @@ package com.ooad.newsaggregator.services;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.ooad.newsaggregator.services.interfaces.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationService {
+public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private  FirebaseMessaging firebaseMessaging;

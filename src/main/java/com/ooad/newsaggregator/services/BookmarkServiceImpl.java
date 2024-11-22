@@ -4,13 +4,14 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.ooad.newsaggregator.models.Article;
+import com.ooad.newsaggregator.services.interfaces.BookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class BookmarkService {
+public class BookmarkServiceImpl implements BookmarkService {
 
     @Autowired
     private Firestore firestore;
