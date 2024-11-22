@@ -137,7 +137,7 @@ public class ArticleService {
             reference.add(article).get();  // This is a blocking call to ensure the document is added before continuing
 
             System.out.println("Article saved successfully");
-           // notificationService.sendArticleNotification(article.getTitle(),article.getContent());
+            notificationService.sendArticleNotification(article.getTitle(),article.getContent());
         } catch (Exception e) {
             System.err.println("Error saving article: " + e.getMessage());
         }
