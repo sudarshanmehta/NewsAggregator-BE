@@ -40,7 +40,6 @@ public class ArticleService {
 
     // Predefined categories
     private static final List<String> ALL_CATEGORIES = Arrays.asList(
-<<<<<<< Updated upstream
             "Sports",
             "Tech",
             "Health",
@@ -50,9 +49,6 @@ public class ArticleService {
             "Science",
             "Travel",
             "Education"
-=======
-            "weather", "politics", "arts", "vehicles", "cricket"
->>>>>>> Stashed changes
     );
 
     public void fetchAndStoreArticles() {

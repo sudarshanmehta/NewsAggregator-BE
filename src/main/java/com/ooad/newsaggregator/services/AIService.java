@@ -107,13 +107,4 @@ public class AIService {
         return null;
 
     }
-
-    public static class FirebaseUserInfoWriter extends FirebaseWriter {
-
-        @Override
-        protected DatabaseReference getTargetCollection() {
-            // Define the Firebase path for users
-            return FirebaseDatabase.getInstance().getReference("users");
-        }
-    }
 }

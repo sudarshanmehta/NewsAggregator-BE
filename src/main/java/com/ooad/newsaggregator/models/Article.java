@@ -24,7 +24,6 @@ public class Article {
     private String url;
     private String category;
     private String sentiment;
-   // private String summary;
     @JsonDeserialize(using = CustomTimestampDeserializer.class)
     private Instant published_at;
 }
